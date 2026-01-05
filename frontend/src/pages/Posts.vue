@@ -87,11 +87,14 @@ console.log('Subscription hook registered (frontend)')
 watchEffect(() => {
   const r = subResult.value
   if (!r) return
-  // subResult value shape from useSubscription is the GraphQL result
   console.log('SUB onResult (frontend):', r)
   const newPost = (r as any)?.postAdded ?? (r as any)?.data?.postAdded
   if (newPost) {
-    if (!posts.value.find((p) => p.id === newPost.id)) posts.value.unshift(newPost)
+    // normalize id to string for robust comparison
+    const newId = String(newPost.id)
+    if (!posts.value.find((p) => String(p.id) === newId)) {
+      posts.value.unshift(newPost)
+    }
   }
 })
 
@@ -117,7 +120,11 @@ watchEffect(() => {
 onDone((payload) => {
   const created = payload.data?.createPost
   if (created) {
-    posts.value.unshift(created)
+    const cid = String(created.id)
+    // prevent duplicate if subscription already added it
+    if (!posts.value.find((p) => String(p.id) === cid)) {
+      posts.value.unshift(created)
+    }
     content.value = ''
   }
 })

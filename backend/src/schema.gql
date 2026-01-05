@@ -6,6 +6,54 @@ type HelloWorldModel {
   value: String!
 }
 
+type UserEntity {
+  id: Int!
+  username: String!
+  email: String!
+  createdAt: DateTime!
+  password: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type AuthResponse {
+  accessToken: String!
+  user: UserEntity!
+}
+
+type PostEntity {
+  id: Int!
+  content: String!
+  author: UserEntity!
+  createdAt: DateTime!
+  authorId: Float!
+}
+
 type Query {
   sayHello: HelloWorldModel!
+  posts: [PostEntity!]!
+}
+
+type Mutation {
+  register(input: CreateUserInput!): UserEntity!
+  login(input: LoginInput!): AuthResponse!
+  createPost(content: String!): PostEntity!
+}
+
+input CreateUserInput {
+  username: String!
+  email: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Subscription {
+  postAdded: PostEntity!
 }
